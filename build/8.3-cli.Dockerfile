@@ -1,30 +1,39 @@
-# Use an official PHP runtime as a base image
 FROM php:8.3-cli
 
-# basic update
-RUN apt-get update && \
-    apt-get install --yes --force-yes \
-    cron openssl
+# Dépendances système
+RUN apt-get update && apt-get install -y \
+    cron \
+    openssl \
+    git \
+    unzip \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# installing the docker php extensions installer
+# Installer install-php-extensions
 RUN curl -sSLf \
-        -o /usr/local/bin/install-php-extensions \
-        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
-    chmod +x /usr/local/bin/install-php-extensions
+    -o /usr/local/bin/install-php-extensions \
+    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+    && chmod +x /usr/local/bin/install-php-extensions
 
-# PHP Configuration
-RUN install-php-extensions  mongodb
-RUN install-php-extensions  gettext iconv intl  tidy zip sockets
-RUN install-php-extensions  pgsql mysqli
-RUN install-php-extensions  pdo_mysql pdo_pgsql
-RUN install-php-extensions mongodb
-RUN install-php-extensions  xdebug
-RUN install-php-extensions  redis
-RUN install-php-extensions @composer
-EXPOSE 80
+# Extensions PHP (UNE SEULE FOIS chacune)
+RUN install-php-extensions \
+    mongodb-1.17.3 \
+    gettext \
+    iconv \
+    intl \
+    tidy \
+    zip \
+    sockets \
+    pgsql \
+    mysqli \
+    pdo_mysql \
+    pdo_pgsql \
+    redis \
+    xdebug \
+    @composer
 
-
-
+# PHP config
 COPY php.ini /usr/local/etc/php/
 
-
+WORKDIR /var/php
