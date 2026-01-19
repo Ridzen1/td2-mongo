@@ -4,15 +4,10 @@ require dirname(path: __DIR__) . '/src/vendor/autoload.php';
 $client = new MongoDB\Client("mongodb://mongo-mongo-1:27017");
 $collection = $client->pizzashop->produits;
 
-// ------------------------------------------------------------
-// 1. LOGIQUE : Traitement du formulaire d'ajout (POST)
-// ------------------------------------------------------------
 $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Construction du document à insérer
         $newProduct = [
-            // On force le typage en integer/float pour respecter le schéma
             'numero'      => (int)$_POST['numero'],
             'libelle'     => htmlspecialchars($_POST['libelle']),
             'categorie'   => $_POST['categorie'],
@@ -23,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'tarif'  => (float)$_POST['tarif']
                 ]
             ],
-            // On initialise un tableau vide pour les recettes pour l'instant
             'recettes'    => []
         ];
 
@@ -34,14 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ------------------------------------------------------------
-// 2. LOGIQUE : Récupération des données pour l'affichage
-// ------------------------------------------------------------
 
-// A. Récupérer toutes les catégories distinctes pour le menu et le select
+
 $categories = $collection->distinct('categorie');
 
-// B. Gérer le filtre par catégorie via l'URL (?cat=...)
 $filter = [];
 $currentCat = "Tout";
 
@@ -50,8 +40,6 @@ if (isset($_GET['cat']) && !empty($_GET['cat'])) {
     $currentCat = $_GET['cat'];
 }
 
-// C. Récupérer les produits (filtrés ou non)
-// On trie par numéro croissant (['sort' => ['numero' => 1]])
 $cursor = $collection->find($filter, ['sort' => ['numero' => 1]]);
 
 ?>
@@ -65,18 +53,15 @@ $cursor = $collection->find($filter, ['sort' => ['numero' => 1]]);
         body { font-family: sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
         h1, h2 { color: #333; }
         
-        /* Styles du Menu */
         .menu { margin-bottom: 20px; }
         .btn { display: inline-block; padding: 8px 15px; margin-right: 5px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; }
         .btn:hover, .btn.active { background: #0056b3; }
         
-        /* Styles de la liste */
         .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .card h3 { margin-top: 0; color: #d32f2f; }
         .badge { background: #eee; padding: 3px 8px; border-radius: 10px; font-size: 0.8em; }
         
-        /* Styles du formulaire */
         .form-box { background: #fff; padding: 20px; margin-top: 40px; border-left: 5px solid #28a745; }
         .form-group { margin-bottom: 10px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
